@@ -8,6 +8,7 @@ public class SM : Singleton<SM>
 
 	bool m_isLocked;
 
+	// TODO: Merge Grounded and Air into single state "Run". Have ColliDet script return bool whether can jump because might be able to jump in Override
 	public enum State
 	{
 		Grounded,
@@ -39,7 +40,7 @@ public class SM : Singleton<SM>
 		}
 	}
 
-	public bool RequestChange(State nextState, bool useLock)
+	public bool RequestChange(State nextState, bool useLock = false)
 	{
 		bool hasChanged = false;
 
