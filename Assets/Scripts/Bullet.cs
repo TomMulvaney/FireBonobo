@@ -5,9 +5,9 @@ public class Bullet : Projectile
 {
     void OnCollisionEnter(Collision other)
 	{
-		if (other.gameObject.tag == "Enemy") 
+		if (!m_tagsAreExceptions && m_tags.Contains(other.gameObject.tag) || m_tagsAreExceptions && !m_tags.Contains(other.gameObject.tag)) 
 		{
-			other.gameObject.SendMessage("Off");
+			other.gameObject.SendMessage("OnBulletHit");
 		}
 
 		Destroy (gameObject);

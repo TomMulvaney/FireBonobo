@@ -2,37 +2,43 @@
 using System.Collections;
 using Wingrove;
 
-public class Gun : MonoBehaviour 
+public class Gun : BonoBohaviour 
 {
 	[SerializeField]
-	private Transform m_forward;
+	protected Transform m_forward;
 	[SerializeField]
 	private GameObject m_projectilePrefab;
 	[SerializeField]
-	private float m_cooldown;
+	protected float m_cooldown;
 	[SerializeField]
-	private bool m_isAutomatic;
-	
-	void Start()
+	private string[] m_bulletTags;
+
+	bool m_canFire = true;
+
+	public void Fire(Vector3 direction)
 	{
-		StartCoroutine (CheckFire ());
+		if (m_canFire) 
+		{
+			Debug.Log("Firing - " + Time.time);
+			GameObject newProjectile = SpawningHelpers.InstantiateUnderWithIdentityTransforms (m_projectilePrefab, transform);
+			newProjectile.transform.parent = null;
+			//Debug.Log("fireDirection: " + direction);
+
+			Projectile projectileBehaviour = newProjectile.GetComponent<Projectile> () as Projectile;
+			projectileBehaviour.On (direction);
+			foreach(string tag in m_bulletTags)
+			{
+				projectileBehaviour.AddTag(tag);
+			}
+
+			m_canFire = false;
+			StartCoroutine (ResetCanFire ());
+		}
 	}
 
-	IEnumerator CheckFire()
+	IEnumerator ResetCanFire()
 	{
-		bool isFiring = m_isAutomatic ? MyInput.GetFire0 () : MyInput.GetFire0Down ();
-
-		if (isFiring) 
-		{
-			GameObject newProjectile = SpawningHelpers.InstantiateUnderWithIdentityTransforms(m_projectilePrefab, transform);
-			newProjectile.transform.parent = null;
-			Debug.Log("gunForward: " + m_forward.forward);
-			newProjectile.GetComponent<Projectile> ().On (m_forward.forward);
-		}
-
-		float delay = isFiring ? m_cooldown : 0;
-		yield return new WaitForSeconds (delay);
-
-		StartCoroutine(CheckFire ());
+		yield return new WaitForSeconds (m_cooldown);
+		m_canFire = true;
 	}
 }
